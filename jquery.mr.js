@@ -184,6 +184,21 @@ $.fn.extend({
 
         return res;
     },
+    contains : function(rel){
+        //This function returns if a jQuery object contains graphicaly another object
+        var myDim = this.dimensions();
+        var relDim = $(rel).dimensions();
+
+        if (relDim.top < myDim.top ||
+            relDim.left < myDim.left ||
+            relDim.top + relDim.height > myDim.top + myDim.height ||
+            relDim.left + relDim.width > myDim.left + myDim.width
+            ){
+            return false;
+        }
+
+        return true;
+    },
     formAttributes : function(){
         //This functions transforms the serializeArray's array of object result into a single object 
         //  with one unique key for each element name
