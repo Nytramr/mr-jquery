@@ -184,7 +184,7 @@ $.fn.extend({
 
         return res;
     },
-    contains : function(rel){
+    containsInside : function(rel){
         //This function returns if a jQuery object contains graphicaly another object
         var myDim = this.dimensions();
         var relDim = $(rel).dimensions();
@@ -221,6 +221,52 @@ $.fn.extend({
         }
         return result;
     },
+    fillFromObject : function(obj){
+        if (this[0].tagName.toUpperCase() !== 'TABLE') {
+            //By the moment, no other element than TABLE will be filled with this function
+            throw this.toString() + ' is not a TABLE element';
+        }
+
+        var html = '';
+        var body = '';
+        var bodyObj = !$.isArray(obj.body);
+        if(bodyObj){
+            //Is an Object
+            for(var k in obj.body){
+                body += '<tr>';
+                body += '<th>' + k + '</th>';
+                for (var i = 0; i < obj.body[k].length; i++) {
+                    body += '<td class="col'+i+'">' + obj.body[k][i] + '</td>';
+                }
+                body += '</tr>';
+            }
+        }else{
+            //Is an Array
+            for(var r = 0; obj.body.length; r++){
+                body += '<tr>';
+                for (var i = 0; i < obj.body[r].length; i++) {
+                    body += '<td class="col'+i+'">' + obj.body[r][i] + '</td>';
+                }
+                body += '</tr>';
+            }
+        }
+
+        if (obj.head) {
+            html += '<tr>';
+            if (bodyObj) {
+                html += '<th></th>';
+            }
+            for (var i = 0; i < obj.head.length; i++) {
+                html += '<th class="col'+i+'">' + obj.head[i] + '</th>';
+            }
+            html += '</tr>';
+        }
+
+        this.html(html + body);
+    },
+    fillFromJson : function(json){
+
+    }
 });
 
 $(function(){
