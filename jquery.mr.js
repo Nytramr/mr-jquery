@@ -285,5 +285,37 @@ $(function(){
     $(document).on('click', '.toggle:radio', function(e){
         $('.toggle:radio[name="'+ e.target.name +'"]').trigger('group-change', [e.target]);
     });
+
+
+    //Select
+    $(document).on('click', 'div.select', function(e){
+        e.stopPropagation();
+        var position = {};
+
+        position['top'] = this.offsetTop;
+        position['left'] = this.offsetLeft;
+        position['width'] = this.clientWidth;
+
+        //on before dropdown
+
+        $(this).next('.options').toggle().css(position);
+    });
+
+    $(document).on('click', 'div.option', function(e){
+        e.stopPropagation();
+        var parent = $(this).parent();
+
+        parent.hide();
+
+        var valueReseptor = parent.data('for');
+        var value = $(this).data('value');
+
+        $('#'+valueReseptor).html($(this).html()).data('value', value).change();
+
+    });
+
+    $(document).click(function(event){
+        $('div.options').hide();
+    });
 });
 
