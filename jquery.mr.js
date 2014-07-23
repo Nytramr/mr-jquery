@@ -18,6 +18,22 @@ String.prototype.ssplit = function (char, amount) {
     return parts;
 };
 
+//Array extension
+Array.prototype.remove = function(index){
+    return this.splice(index, 1)[0];
+};
+
+//Object extension
+Object.size = function(obj){
+    var s = 0;
+    for (var key in obj) {
+        if (obj[key] && obj.hasOwnProperty(key)) s++;
+    }
+    return s;
+};
+
+
+//jQuery extensions
 $.extend({ 
     textToHtml: function(text){
         /*
@@ -184,6 +200,21 @@ $.fn.extend({
 
         return res;
     },
+    containsInside : function(rel){
+        //This function returns if a jQuery object contains graphicaly another object
+        var myDim = this.dimensions();
+        var relDim = $(rel).dimensions();
+
+        if (relDim.top < myDim.top ||
+            relDim.left < myDim.left ||
+            relDim.top + relDim.height > myDim.top + myDim.height ||
+            relDim.left + relDim.width > myDim.left + myDim.width
+            ){
+            return false;
+        }
+
+        return true;
+    },
     formAttributes : function(){
         //This functions transforms the serializeArray's array of object result into a single object 
         //  with one unique key for each element name
@@ -206,6 +237,52 @@ $.fn.extend({
         }
         return result;
     },
+    fillFromObject : function(obj){
+        if (this[0].tagName.toUpperCase() !== 'TABLE') {
+            //By the moment, no other element than TABLE will be filled with this function
+            throw this.toString() + ' is not a TABLE element';
+        }
+
+        var html = '';
+        var body = '';
+        var bodyObj = !$.isArray(obj.body);
+        if(bodyObj){
+            //Is an Object
+            for(var k in obj.body){
+                body += '<tr>';
+                body += '<th>' + k + '</th>';
+                for (var i = 0; i < obj.body[k].length; i++) {
+                    body += '<td class="col'+i+'">' + obj.body[k][i] + '</td>';
+                }
+                body += '</tr>';
+            }
+        }else{
+            //Is an Array
+            for(var r = 0; obj.body.length; r++){
+                body += '<tr>';
+                for (var i = 0; i < obj.body[r].length; i++) {
+                    body += '<td class="col'+i+'">' + obj.body[r][i] + '</td>';
+                }
+                body += '</tr>';
+            }
+        }
+
+        if (obj.head) {
+            html += '<tr>';
+            if (bodyObj) {
+                html += '<th></th>';
+            }
+            for (var i = 0; i < obj.head.length; i++) {
+                html += '<th class="col'+i+'">' + obj.head[i] + '</th>';
+            }
+            html += '</tr>';
+        }
+
+        this.html(html + body);
+    },
+    fillFromJson : function(json){
+
+    }
 });
 
 $(function(){
@@ -223,6 +300,38 @@ $(function(){
 
     $(document).on('click', '.toggle:radio', function(e){
         $('.toggle:radio[name="'+ e.target.name +'"]').trigger('group-change', [e.target]);
+    });
+
+
+    //Select
+    $(document).on('click', 'div.select', function(e){
+        e.stopPropagation();
+        var position = {};
+
+        position['top'] = this.offsetTop;
+        position['left'] = this.offsetLeft;
+        position['width'] = this.clientWidth;
+
+        //on before dropdown
+
+        $(this).next('.options').toggle().css(position);
+    });
+
+    $(document).on('click', 'div.option', function(e){
+        e.stopPropagation();
+        var parent = $(this).parent();
+
+        parent.hide();
+
+        var valueReseptor = parent.data('for');
+        var value = $(this).data('value');
+
+        $('#'+valueReseptor).html($(this).html()).data('value', value).change();
+
+    });
+
+    $(document).click(function(event){
+        $('div.options').hide();
     });
 });
 
